@@ -1,0 +1,6 @@
+oh no i left this file empty 
+
+
+       if(route.state.routeNames === "Section"){
+                var tabBarVisibility = false;
+              }
