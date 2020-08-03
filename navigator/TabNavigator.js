@@ -78,6 +78,14 @@ class AppNavigator extends React.Component {
           },
         })}
       >
+      <Tab.Screen
+      name="ProjectScreen"
+      component={ProjectStackScreen}
+      options={{
+        tabBarLabel: "Project",
+        tabBarVisible: true,
+      }}
+    />
         <Tab.Screen
           name="HomeScreen"
           options={({ navigation, route }) => {
@@ -121,14 +129,7 @@ class AppNavigator extends React.Component {
             tabBarVisible: true,
           }}
         />
-        <Tab.Screen
-          name="ProjectScreen"
-          component={ProjectStackScreen}
-          options={{
-            tabBarLabel: "Project",
-            tabBarVisible: true,
-          }}
-        />
+      
       </Tab.Navigator>
     );
   }
