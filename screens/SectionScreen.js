@@ -1,13 +1,16 @@
 import React from "react";
 import styled from "styled-components";
 import { Ionicons } from "@expo/vector-icons";
+import WebView from "react-native-webview";
 import {
   TouchableOpacity,
   StatusBar,
-  WebView,
   Linking,
   ScrollView,
+  Platform,
 } from "react-native";
+
+import Markdown from "react-native-showdown";
 
 class SectionScreen extends React.Component {
   static navigationOptions = {
@@ -19,7 +22,7 @@ class SectionScreen extends React.Component {
   }
 
   componentWillUnmount() {
-    // StatusBar.setBarStyle("dark-content", true);
+    StatusBar.setBarStyle("dark-content", true);
   }
 
   render() {
@@ -27,32 +30,69 @@ class SectionScreen extends React.Component {
     const section = route.params.section;
 
     return (
-      <Container>
-        <Cover>
-          <Image source={section.image} />
-          <Wrapper>
-            <Logo source={section.logo} />
-            <Subtitle>{section.subtitle}</Subtitle>
-          </Wrapper>
-          <Title>{section.title}</Title>
-          <Caption>{section.caption}</Caption>
-        </Cover>
-        <TouchableOpacity
-          style={{ position: "absolute", top: 40, right: 30 }}
-          onPress={() => {
-            this.props.navigation.goBack();
-          }}
-        >
-          <CloseView>
-            <Ionicons
-              name="ios-close"
-              size={44}
-              color="#546bfb"
-              style={{ marginTop: -2 }}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
+      >
+        <Container>
+          <Cover>
+            <Image
+              source={{
+                uri: section.image.url,
+              }}
             />
-          </CloseView>
-        </TouchableOpacity>
-      </Container>
+            <Wrapper>
+              <Logo
+                source={{
+                  uri: section.logo.url,
+                }}
+              />
+              <Subtitle>{section.subtitle}</Subtitle>
+            </Wrapper>
+            <Title>{section.title}</Title>
+            <Caption>{section.caption}</Caption>
+          </Cover>
+          <TouchableOpacity
+            style={{ position: "absolute", top: 40, right: 30 }}
+            onPress={() => {
+              this.props.navigation.goBack();
+            }}
+          >
+            <CloseView>
+              <Ionicons
+                name="ios-close"
+                size={44}
+                color="#546bfb"
+                style={{ marginTop: -2 }}
+              />
+            </CloseView>
+          </TouchableOpacity>
+          <Content>
+            {
+              //  <WebView
+              // source={{ html: section.content + htmlStyles }}
+              // scalesPageToFit={false}
+              // scrollEnabled={false}
+              // ref="webview"
+              // onNavigationStateChange={event => {
+              //   // console.log(event);
+              //   if (event.url != "about:blank") {
+              //     this.refs.webview.stopLoading();
+              //     Linking.openURL(event.url);
+              //   }
+              // }}
+              // />
+            }
+
+            <Markdown
+              body={section.content}
+              pureCSS={htmlStyles}
+              scalesPageToFit={false}
+              scrollEnabled={false}
+            />
+          </Content>
+        </Container>
+      </ScrollView>
     );
   }
 }
@@ -111,20 +151,23 @@ const htmlStyles = `
       word-wrap: break-word;
       border-radius: 10px;
       margin-top: 20px;
+      
     }
     
     code {
       color: white;
     }
+
 `;
 
 const Content = styled.View`
-  height: 1000px;
+  height: 1040px;
   padding: 20px;
 `;
 
 const Container = styled.View`
   flex: 1;
+  background: #fff;
 `;
 
 const Text = styled.Text``;

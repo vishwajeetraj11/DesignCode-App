@@ -1,21 +1,31 @@
 import React from "react";
 import styled from "styled-components/native";
 
-const Card = (props) => (
-  <Container>
-    <Cover>
-      <Image source={props.image}></Image>
-      <Title>{props.title}</Title>
-    </Cover>
-    <Content>
-      <Logo source={props.logo} />
-      <Wrapper>
-        <Caption>{props.caption}</Caption>
-        <Subtitle>{props.subtitle}</Subtitle>
-      </Wrapper>
-    </Content>
-  </Container>
-);
+const Card = (props) => {
+  return (
+    <Container style={{ elevation: 10 }}>
+      <Cover>
+        <Image
+          source={{
+            uri: props.image.url,
+          }}
+        ></Image>
+        <Title>{props.title}</Title>
+      </Cover>
+      <Content>
+        <Logo
+          source={{
+            uri: props.logo.url,
+          }}
+        />
+        <Wrapper>
+          <Caption>{props.caption}</Caption>
+          <Subtitle>{props.subtitle}</Subtitle>
+        </Wrapper>
+      </Content>
+    </Container>
+  );
+};
 
 export default Card;
 
@@ -23,8 +33,7 @@ const Container = styled.View`
   background: white;
   width: 315px;
   height: 280px;
-  margin-left: 20px;
-  margin-top: 20px;
+  margin: 20px 10px;
   border-radius: 14px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 `;

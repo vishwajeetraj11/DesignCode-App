@@ -4,3 +4,25 @@ oh no i left this file empty
        if(route.state.routeNames === "Section"){
                 var tabBarVisibility = false;
               }
+
+
+Styled components allow you to take your CSS to the next level. Not only does it allow you to nest your CSS like in [SCSS](https://sass-lang.com/), but it also gives you the power to use javascript and transfer Props to your CSS, making it super customizable.
+
+## Downloads
+Feel free to use your own designs and apply your own styling. You can also use my [Figma design](https://www.figma.com/file/VwdnaYS4fU9DP2fGIh9k3U5d/React-for-Designers?node-id=0:1) if you wish to follow exactly what I have. You can access all the [React files](https://github.com/MengTo/my-react-app) and [images](https://cl.ly/3b2M101K120e/download/react-for-designers-images.zip) here.
+
+![background14](https://images.ctfassets.net/ldcl3ayg0mhx/3juTcOol4UZnkkubSim9bP/a10def057432ae829c3910abfd8c2fe4/background14.jpg)
+
+
+```css
+pre {
+  padding: 20px;
+  background: #212C4F;
+  overflow: hidden;
+  word-wrap: break-word;
+  border-radius: 10px;
+}
+code {
+  color: white;
+}
+```
