@@ -14,7 +14,7 @@
     "@react-navigation/stack": "^5.8.0",
     "apollo-boost": "^0.4.9",
     "expo": "~38.0.8",
-    "expo-status-bar": "^1.0.2",
+    "expo-status-bar": "^1.0.0",
     "graphql": "^15.3.0",
     "react": "~16.11.0",
     "react-apollo": "^3.1.5",

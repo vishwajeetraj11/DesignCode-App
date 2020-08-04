@@ -9,7 +9,12 @@ import { Ionicons } from "@expo/vector-icons";
 
 const HomeStack = createStackNavigator();
 
-function HomeStackScreen() {
+function HomeStackScreen({ navigation, route }) {
+  if (route.state && route.state.index > 0) {
+    navigation.setOptions({ tabBarVisible: false });
+  } else {
+    navigation.setOptions({ tabBarVisible: true });
+  }
   return (
     <HomeStack.Navigator headerMode={null}>
       <HomeStack.Screen name="Home" component={HomeScreen} />
@@ -78,14 +83,14 @@ class AppNavigator extends React.Component {
           },
         })}
       >
-      <Tab.Screen
-      name="ProjectScreen"
-      component={ProjectStackScreen}
-      options={{
-        tabBarLabel: "Project",
-        tabBarVisible: true,
-      }}
-    />
+        <Tab.Screen
+          name="ProjectScreen"
+          component={ProjectStackScreen}
+          options={{
+            tabBarLabel: "Project",
+            tabBarVisible: true,
+          }}
+        />
         <Tab.Screen
           name="HomeScreen"
           options={({ navigation, route }) => {
@@ -129,7 +134,6 @@ class AppNavigator extends React.Component {
             tabBarVisible: true,
           }}
         />
-      
       </Tab.Navigator>
     );
   }
