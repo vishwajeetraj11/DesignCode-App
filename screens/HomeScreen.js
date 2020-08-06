@@ -16,6 +16,7 @@ import Course from "../components/Course";
 import Menu from "../components/Menu";
 import { connect } from "react-redux";
 import Avatar from "../components/Avatar";
+import ModalLogin from "../components/ModalLogin"
 
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
@@ -212,6 +213,7 @@ class HomeScreen extends React.Component {
             </ScrollView>
           </SafeAreaView>
         </AnimatedContainer>
+        <ModalLogin />
       </RootView>
     );
   }
