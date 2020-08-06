@@ -34,6 +34,10 @@ const reducer = (state = initialState, action) => {
       return { action: "openMenu" };
     case "UPDATE_NAME":
       return { name: action.name };
+    case "OPEN_CARD":
+      return { action: "openCard" };
+    case "CLOSE_CARD": 
+      return { action: "closeCard" }
     default:
       return state;
   }

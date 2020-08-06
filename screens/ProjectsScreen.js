@@ -9,13 +9,20 @@ import {
   Animated,
 } from "react-native";
 import Project from "../components/Project";
+import { connect } from "react-redux";
+
+function mapStateToProps(state) {
+  return {
+    action: state.action,
+  };
+}
 
 function getNextIndex(index) {
-  const nextIndex = index + 1
-  if( nextIndex > projects.length - 1){
-    return 0
+  const nextIndex = index + 1;
+  if (nextIndex > projects.length - 1) {
+    return 0;
   }
-  return nextIndex
+  return nextIndex;
 }
 
 class ProjectsScreen extends React.Component {
@@ -29,13 +36,24 @@ class ProjectsScreen extends React.Component {
     translateY: new Animated.Value(44),
     thirdScale: new Animated.Value(0.8),
     thirdTranslateY: new Animated.Value(-40),
-    index: 0
+    index: 0,
+    opacity: new Animated.Value(0)
   };
 
   UNSAFE_componentWillMount() {
     this.__panResponder = PanResponder.create({
       // this is to enable the pan gesture to listen to it
-      onMoveShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (event, gestureState) => {
+        if (gestureState.dx === 0 && gestureState.dy === 0) {
+          return false;
+        } else {
+          if (this.props.action === "openCard") {
+            return false;
+          } else {
+            return true;
+          }
+        }
+      },
 
       onPanResponderGrant: () => {
         // when holding the current card we want the below card to be at previous cards place and style with translateY and scale
@@ -56,6 +74,11 @@ class ProjectsScreen extends React.Component {
           toValue: 44,
           useNativeDriver: false,
         }).start();
+        Animated.timing(this.state.opacity, {
+          toValue: 1,
+          useNativeDriver: false,
+        }).start() 
+
       },
 
       onPanResponderMove: Animated.event(
@@ -66,21 +89,23 @@ class ProjectsScreen extends React.Component {
       onPanResponderRelease: () => {
         const positionY = this.state.pan.y.__getValue();
         // console.log(positionY)
+        Animated.timing(this.state.opacity, {
+          toValue: 0,
+          useNativeDriver: false,
+        }).start() 
 
         if (positionY > 200) {
           Animated.timing(this.state.pan, {
             toValue: { x: 0, y: 630 },
             useNativeDriver: false,
-          }).start(
-             () => {
-            this.state.pan.setValue({ x: 0, y: 0 })
+          }).start(() => {
+            this.state.pan.setValue({ x: 0, y: 0 });
             this.state.scale.setValue(0.9);
             this.state.translateY.setValue(44);
             this.state.thirdScale.setValue(0.8);
             this.state.thirdTranslateY.setValue(-50);
             this.setState({ index: getNextIndex(this.state.index) });
-          } 
-          );
+          });
         } else {
           Animated.spring(this.state.pan, {
             toValue: { x: 0, y: 0 },
@@ -112,6 +137,7 @@ class ProjectsScreen extends React.Component {
   render() {
     return (
       <Container>
+      <AnimatedMask style={{ opacity: this.state.opacity }} />
         <Animated.View
           style={{
             transform: [
@@ -126,6 +152,7 @@ class ProjectsScreen extends React.Component {
             image={projects[this.state.index].image}
             author={projects[this.state.index].author}
             text={projects[this.state.index].text}
+            canOpen={true}
           />
         </Animated.View>
 
@@ -178,10 +205,10 @@ class ProjectsScreen extends React.Component {
           }}
         >
           <Project
-            title={projects[getNextIndex(this.state.index+1)].title}
-            image={projects[getNextIndex(this.state.index+1)].image}
-            author={projects[getNextIndex(this.state.index+1)].author}
-            text={projects[getNextIndex(this.state.index+1)].text}
+            title={projects[getNextIndex(this.state.index + 1)].title}
+            image={projects[getNextIndex(this.state.index + 1)].image}
+            author={projects[getNextIndex(this.state.index + 1)].author}
+            text={projects[getNextIndex(this.state.index + 1)].text}
           />
         </Animated.View>
       </Container>
@@ -189,7 +216,20 @@ class ProjectsScreen extends React.Component {
   }
 }
 
-export default ProjectsScreen;
+export default connect(mapStateToProps)(ProjectsScreen);
+
+
+const Mask = styled.View`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: -3;
+`;
+
+const AnimatedMask = Animated.createAnimatedComponent(Mask);
 
 const Container = styled.View`
   flex: 1;
@@ -204,10 +244,10 @@ const projects = [
     title: "Price Tag",
     image: require("../assets/background5.jpg"),
     author: "Liu Yi",
-    // text:
-    //   "Thanks to Design+Code, I improved my design skill and learned to do animations for my app Price Tag, a top news app in China. Thanks to Design+Code, I improved my design skill and learned to do animations for my app Price Tag, a top news app in China.",
     text:
-      "Thanks to Design+Code, I improved my design skill and learned to do animations for my app Price Tag, a top news app in China",
+      "Thanks to Design+Code, I improved my design skill and learned to do animations for my app Price Tag, a top news app in China. Thanks to Design+Code, I improved my design skill and learned to do animations for my app Price Tag, a top news app in China.",
+    // text:
+    //   "Thanks to Design+Code, I improved my design skill and learned to do animations for my app Price Tag, a top news app in China",
   },
   {
     title: "The DM App - Ananoumous Chat",
