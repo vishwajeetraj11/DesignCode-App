@@ -8,83 +8,194 @@ import {
 import { Alert, Animated, Dimensions } from "react-native";
 import { BoxShadow } from "react-native-shadow";
 import { BlurView } from "expo-blur";
+import Success from "../components/Success";
+import Loading from "./Loading";
+import firebase from "./Firebase"
+import { connect } from "react-redux"
+import { AsyncStorage } from 'react-native'
+
+const screenHeight = Dimensions.get("window").height;
 
 class ModalLogin extends React.Component {
+  state = {
+    email: "",
+    password: "",
+    iconEmail: require("../assets/icon-email.png"),
+    iconPassword: require("../assets/icon-password.png"),
+    isSuccessful: false,
+    isLoading: false,
+    top: new Animated.Value(screenHeight),
+    scale: new Animated.Value(1.3),
+    translateY: new Animated.Value(0)
+  };
 
-    state = {
-        email: "",
-        password: "",
-        iconEmail: require("../assets/icon-email.png"),
-        iconPassword: require("../assets/icon-password.png"),
+  componentDidMount() {
+    this.retrieveName();
+  }
+
+  componentDidUpdate() {
+    if(this.props.action === 'openLogin') {
+      Animated.timing(this.state.top, {
+        useNativeDriver: false,
+        toValue: 0,
+        duration: 0
+      }).start();
+      Animated.spring(this.state.scale, { toValue: 1, useNativeDriver: false }).start();
+      Animated.spring(this.state.translateY, { toValue: 0, duration: 0, useNativeDriver: false }).start();
     }
+    if(this.props.action === 'closeLogin') {
+      setTimeout( () => {
+        Animated.timing(this.state.top, {
+          useNativeDriver: false,
+          toValue: screenHeight,
+          duration: 0
+        }).start();
+        Animated.spring(this.state.scale, { toValue: 1.3, useNativeDriver: false }).start();
 
-    handleLogin = () => {
-        console.log(this.state)
+      },200)
+      Animated.spring(this.state.translateY, { toValue: 1000, duration: 800, useNativeDriver: false }).start();
     }
+  }
 
-    focusEmail = () => {
-        this.setState({
-          iconEmail: require("../assets/icon-email-animated.gif"),
-          iconPassword: require("../assets/icon-password.png")
-        });
-      };
+  storeName = async (name) => {
+    try {
+      await AsyncStorage.setItem("name", name)
+    } catch(error) {
+
+    }
+  }
+
+  retrieveName = async () => {
+    try {
+      // basically name stores email
+      const name = await AsyncStorage.getItem("name")
+      if(name !== null) {
+        this.props.updateName(name);
+      }
+    } catch(error) {
+
+    }
+  }
+
+  handleLogin = () => {
+
+    this.setState({isLoading: true})
+
+    Keyboard.dismiss();
+
+    const email = this.state.email;
+    const password = this.state.password;
+
+    firebase
+    .auth()
+    .signInWithEmailAndPassword(email, password)
+    .catch(function(error) {
+      Alert.alert("Error :", error.message)
+    })
+    .then(response => {
+      // console.log(response)
+      this.setState({ isLoading: false });
+
+      if(response) {
+        this.setState({isSuccessful: true})
     
-      focusPassword = () => {
-        this.setState({
-          iconEmail: require("../assets/icon-email.png"),
-          iconPassword: require("../assets/icon-password-animated.gif")
-        });
-      };
+        Alert.alert('Congrats', "You've logged in successfully")
+        this.storeName(response.user.email)
+        this.props.updateName(response.user.email)
+        setTimeout( () => {
+        this.props.closeLogin()
+        this.setState({ isSuccessful: false });
+    },1000)
 
-      tapBackground = () => {
-        Keyboard.dismiss();
-        // this.props.closeLogin();
-      };
+      }
+    })
+  };
+
+
+  focusEmail = () => {
+    this.setState({
+      iconEmail: require("../assets/icon-email-animated.gif"),
+      iconPassword: require("../assets/icon-password.png"),
+    });
+  };
+
+  focusPassword = () => {
+    this.setState({
+      iconEmail: require("../assets/icon-email.png"),
+      iconPassword: require("../assets/icon-password-animated.gif"),
+    });
+  };
+
+  tapBackground = () => {
+    Keyboard.dismiss();
+    this.props.closeLogin();
+  };
 
   render() {
-
     return (
-      <Container>
-      <TouchableWithoutFeedback onPress={this.tapBackground}>
-      <BlurView
-      tint="dark"
-      intensity={100}
-      style={{
-        position: "absolute",
-        width: "100%",
-        height: "100%"
-      }}
-    />
-    </TouchableWithoutFeedback>
-        <Modal>
+      <AnimatedContainer style={{ top: this.state.top }}>
+        <TouchableWithoutFeedback onPress={this.tapBackground}>
+          <BlurView
+            tint="dark"
+            intensity={100}
+            style={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+            }}
+          />
+        </TouchableWithoutFeedback>
+        <AnimatedModal style={{ transform: [
+          {
+            scale: this.state.scale
+          },
+          {
+            translateY: this.state.translateY
+          }
+        ] }}>
           <Logo source={require("../assets/logo-dc.png")} />
           <Text>Start Learning. Access Pro Content</Text>
-          <TextInput 
-          placeholder="Email" 
-          keyboardType="email-address" 
-          onChangeText={email => this.setState({ email })} 
-          onFocus={this.focusEmail}
+          <TextInput
+            placeholder="Email"
+            keyboardType="email-address"
+            onChangeText={(email) => this.setState({ email })}
+            onFocus={this.focusEmail}
           />
-          <TextInput 
-          placeholder="Password" 
-          secureTextEntry={true} 
-          onChangeText={password => this.setState({ password }) }  
-          onFocus={this.focusPassword}
+          <TextInput
+            placeholder="Password"
+            secureTextEntry={true}
+            onChangeText={(password) => this.setState({ password })}
+            onFocus={this.focusPassword}
           />
           <IconEmail source={this.state.iconEmail} />
           <IconPassword source={this.state.iconPassword} />
-           <TouchableOpacity onPress={this.handleLogin} >
+          <TouchableOpacity onPress={this.handleLogin}>
             <Button>
               <ButtonText>Log In</ButtonText>
             </Button>
-            </TouchableOpacity>
-        </Modal>
-      </Container>
+          </TouchableOpacity>
+        </AnimatedModal>
+        <Success isActive={this.state.isSuccessful} />
+        <Loading isActive={this.state.isLoading} />
+      </AnimatedContainer>
     );
   }
 }
 
-export default ModalLogin;
+export default connect(mapStateToProps, mapDispatchToProps)(ModalLogin);
+
+function mapStateToProps(state) {
+  return {
+    action: state.action
+  }
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    closeLogin:  () => dispatch({type: "CLOSE_LOGIN"}),
+    updateName: (name) => dispatch({ type: "UPDATE_NAME", name })
+  }
+}
 
 const Container = styled.View`
   position: absolute;

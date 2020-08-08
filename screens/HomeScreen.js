@@ -16,7 +16,9 @@ import Course from "../components/Course";
 import Menu from "../components/Menu";
 import { connect } from "react-redux";
 import Avatar from "../components/Avatar";
-import ModalLogin from "../components/ModalLogin"
+import ModalLogin from "../components/ModalLogin";
+import NotificationButton from "../components/NotificationButton";
+import Notifications from "../components/Notifications";
 
 import gql from "graphql-tag";
 import { Query } from "react-apollo";
@@ -54,18 +56,6 @@ const CardsQuery = gql`
   }
 `;
 
-function mapStateToProps(state) {
-  return { action: state.action, name: state.name };
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    openMenu: () =>
-      dispatch({
-        type: "OPEN_MENU",
-      }),
-  };
-}
 class HomeScreen extends React.Component {
   static navigationOptions = {
     headerShown: false,
@@ -85,6 +75,15 @@ class HomeScreen extends React.Component {
   componentDidUpdate() {
     this.toggleMenu();
   }
+
+  handleAvatar = () => {
+    console.log(this.props.name);
+    if (this.props.name !== "Stranger") {
+      this.props.openMenu();
+    } else {
+      this.props.openLogin();
+    }
+  };
 
   toggleMenu = () => {
     if (this.props.action === "openMenu") {
@@ -122,6 +121,7 @@ class HomeScreen extends React.Component {
     return (
       <RootView>
         <Menu />
+        <Notifications />
         <AnimatedContainer
           style={{
             transform: [{ scale: this.state.scale }],
@@ -132,16 +132,19 @@ class HomeScreen extends React.Component {
             <ScrollView>
               <TitleBar>
                 <TouchableOpacity
-                  onPress={this.props.openMenu}
+                  onPress={this.handleAvatar}
                   style={{ position: "absolute" }}
                 >
                   <Avatar />
                 </TouchableOpacity>
                 <Title>Welcome back,</Title>
                 <Name>{this.props.name}</Name>
-                <NotificationIcon
-                  style={{ position: "absolute", right: 30, top: 12 }}
-                />
+                <TouchableOpacity
+                  onPress={() => this.props.openNotif()}
+                  style={{ position: "absolute", right: 20, top: 5 }}
+                >
+                  <NotificationButton />
+                </TouchableOpacity>
               </TitleBar>
 
               <ScrollView
@@ -196,19 +199,19 @@ class HomeScreen extends React.Component {
                 </Query>
               </ScrollView>
               <Subtitle>Popular Courses</Subtitle>
-                  <CoursesContainer>
-              {courses.map((course, index) => (
-                <Course
-                  key={index}
-                  image={course.image}
-                  title={course.title}
-                  subtitle={course.subtitle}
-                  logo={course.logo}
-                  author={course.author}
-                  avatar={course.avatar}
-                  caption={course.caption}
-                />
-              ))}
+              <CoursesContainer>
+                {courses.map((course, index) => (
+                  <Course
+                    key={index}
+                    image={course.image}
+                    title={course.title}
+                    subtitle={course.subtitle}
+                    logo={course.logo}
+                    author={course.author}
+                    avatar={course.avatar}
+                    caption={course.caption}
+                  />
+                ))}
               </CoursesContainer>
             </ScrollView>
           </SafeAreaView>
@@ -220,6 +223,18 @@ class HomeScreen extends React.Component {
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(HomeScreen);
+
+function mapStateToProps(state) {
+  return { action: state.action, name: state.name };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+    openMenu: () => dispatch({ type: "OPEN_MENU" }),
+    openLogin: () => dispatch({ type: "OPEN_LOGIN" }),
+    openNotif: () => dispatch({ type: "OPEN_NOTIF" }),
+  };
+}
 
 const CardsContainer = styled.View`
   flex-direction: row;
@@ -287,9 +302,9 @@ const Message = styled.Text`
 `;
 
 const CoursesContainer = styled.View`
-flex-direction: row;
-flex-wrap: wrap;
-padding-left: 10px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-left: 10px;
 `;
 
 const Logos = [
